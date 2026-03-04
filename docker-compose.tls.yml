@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: prontuario-postgres-tls
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: prontuario
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_tls:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d prontuario"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: prontuario-api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      ENVIRONMENT: production
+      ENFORCE_HTTPS: "true"
+      HSTS_ENABLED: "true"
+      REQUIRE_MANAGED_SECRETS_IN_DEPLOY: "false"
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/prontuario
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: prontuario-nginx
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/certs:/etc/nginx/certs:ro
+
+volumes:
+  postgres_data_tls:
