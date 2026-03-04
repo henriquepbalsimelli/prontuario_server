@@ -199,6 +199,10 @@ Automação no GitHub Actions:
 python scripts/process_domain_events.py --limit 100
 ```
 
+## Observabilidade (LGTM)
+- Stack base da Fase 1 em `deploy/observability`.
+- Guia rápido: `deploy/observability/README.md`.
+
 ## Autenticacao (para endpoints protegidos)
 - Use `Authorization: Bearer <token>`
 - O token JWT deve conter `doctor_id` (ou `sub`) com UUID valido.
@@ -215,4 +219,3 @@ Exemplo rapido para gerar token local (com o mesmo `JWT_SECRET_KEY` do `.env`):
 ```bash
 python3 -c 'import os, jwt; print(jwt.encode({"doctor_id":"7b1358ec-3b56-439a-a901-830f731ea64f"}, os.environ["JWT_SECRET_KEY"], algorithm="HS256"))'
 ```
-

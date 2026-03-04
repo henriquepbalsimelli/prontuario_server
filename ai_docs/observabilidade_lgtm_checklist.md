@@ -1,36 +1,36 @@
 # Checklist de Implementação - Observabilidade (LGTM + OpenTelemetry)
 
 ## Escopo de infraestrutura (2 servidores)
-- [ ] Confirmar arquitetura final: 1 servidor API + 1 servidor LGTM
-- [ ] Definir DNS/TLS para acesso ao Grafana e endpoints de ingestão
-- [ ] Definir portas, firewall e regras de rede entre API <-> LGTM
+- [x] Confirmar arquitetura final: 1 servidor API + 1 servidor LGTM
+- [x] Definir DNS/TLS para acesso ao Grafana e endpoints de ingestão
+- [x] Definir portas, firewall e regras de rede entre API <-> LGTM
 
 ## Fase 0 - Requisitos e SLOs
-- [ ] Definir SLO de disponibilidade da API
-- [ ] Definir SLO de latência (p95/p99)
-- [ ] Definir SLO de erro (4xx/5xx relevantes)
-- [ ] Definir retenção para logs, traces e métricas
-- [ ] Definir limites de cardinalidade (labels/attributes)
+- [x] Definir SLO de disponibilidade da API
+- [x] Definir SLO de latência (p95/p99)
+- [x] Definir SLO de erro (4xx/5xx relevantes)
+- [x] Definir retenção para logs, traces e métricas
+- [x] Definir limites de cardinalidade (labels/attributes)
 
 ## Fase 1 - Provisionar servidor LGTM
-- [ ] Subir Grafana com volume persistente
-- [ ] Subir Loki com volume persistente
-- [ ] Subir Tempo com volume persistente
-- [ ] Subir Mimir com volume persistente
-- [ ] Configurar datasource Loki no Grafana
-- [ ] Configurar datasource Tempo no Grafana
-- [ ] Configurar datasource Mimir (Prometheus) no Grafana
-- [ ] Configurar retenção do Loki (compactor + retention)
-- [ ] Configurar retenção do Tempo
-- [ ] Configurar retenção do Mimir
+- [x] Subir Grafana com volume persistente
+- [x] Subir Loki com volume persistente
+- [x] Subir Tempo com volume persistente
+- [x] Subir Mimir com volume persistente
+- [x] Configurar datasource Loki no Grafana
+- [x] Configurar datasource Tempo no Grafana
+- [x] Configurar datasource Mimir (Prometheus) no Grafana
+- [x] Configurar retenção do Loki (compactor + retention)
+- [x] Configurar retenção do Tempo
+- [x] Configurar retenção do Mimir
 
 ## Fase 2 - Segurança no servidor LGTM
-- [ ] Configurar reverse proxy (Nginx/Traefik) com TLS
-- [ ] Proteger Grafana com autenticação forte
-- [ ] Proteger endpoints de ingestão OTLP com autenticação
-- [ ] Aplicar rate limiting nos endpoints públicos
-- [ ] Restringir acesso por IP (quando possível)
-- [ ] Configurar RBAC no Grafana
+- [x] Configurar reverse proxy (Nginx/Traefik) com TLS
+- [x] Proteger Grafana com autenticação forte
+- [x] Proteger endpoints de ingestão OTLP com autenticação
+- [x] Aplicar rate limiting nos endpoints públicos
+- [x] Restringir acesso por IP (quando possível)
+- [x] Configurar RBAC no Grafana
 
 ## Fase 3 - Collector/Agent no servidor API
 - [ ] Instalar Grafana Alloy no servidor da API

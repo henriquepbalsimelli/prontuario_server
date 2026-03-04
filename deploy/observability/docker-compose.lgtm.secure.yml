@@ -1,0 +1,86 @@
+services:
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: prontuario-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
+      GF_USERS_AUTO_ASSIGN_ORG_ROLE: Viewer
+      GF_SERVER_ROOT_URL: https://${GRAFANA_DOMAIN}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+    networks:
+      - observability
+
+  loki:
+    image: grafana/loki:3.4.1
+    container_name: prontuario-loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    volumes:
+      - loki_data:/loki
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+    networks:
+      - observability
+
+  tempo:
+    image: grafana/tempo:2.7.1
+    container_name: prontuario-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    volumes:
+      - tempo_data:/var/tempo
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+    networks:
+      - observability
+
+  mimir:
+    image: grafana/mimir:2.15.3
+    container_name: prontuario-mimir
+    restart: unless-stopped
+    command: ["-config.file=/etc/mimir/mimir.yml"]
+    volumes:
+      - mimir_data:/data
+      - ./mimir/mimir.yml:/etc/mimir/mimir.yml:ro
+    networks:
+      - observability
+
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: prontuario-observability-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      GRAFANA_DOMAIN: ${GRAFANA_DOMAIN}
+      OTLP_HTTP_DOMAIN: ${OTLP_HTTP_DOMAIN}
+      OTLP_GRPC_DOMAIN: ${OTLP_GRPC_DOMAIN}
+      API_SERVER_CIDR: ${API_SERVER_CIDR}
+    volumes:
+      - ./proxy/templates:/etc/nginx/templates:ro
+      - ./proxy/certs:/etc/nginx/certs:ro
+      - ./proxy/auth:/etc/nginx/auth:ro
+    depends_on:
+      - grafana
+      - tempo
+    networks:
+      - observability
+
+networks:
+  observability:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  loki_data:
+  tempo_data:
+  mimir_data:

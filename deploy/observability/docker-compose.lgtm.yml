@@ -1,0 +1,72 @@
+services:
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: prontuario-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL:-http://localhost:3000}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+      - tempo
+      - mimir
+    networks:
+      - observability
+
+  loki:
+    image: grafana/loki:3.4.1
+    container_name: prontuario-loki
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+    networks:
+      - observability
+
+  tempo:
+    image: grafana/tempo:2.7.1
+    container_name: prontuario-tempo
+    restart: unless-stopped
+    command: ["-config.file=/etc/tempo/tempo.yml"]
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+      - "4318:4318"
+    volumes:
+      - tempo_data:/var/tempo
+      - ./tempo/tempo.yml:/etc/tempo/tempo.yml:ro
+    networks:
+      - observability
+
+  mimir:
+    image: grafana/mimir:2.15.3
+    container_name: prontuario-mimir
+    restart: unless-stopped
+    command: ["-config.file=/etc/mimir/mimir.yml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - mimir_data:/data
+      - ./mimir/mimir.yml:/etc/mimir/mimir.yml:ro
+    networks:
+      - observability
+
+networks:
+  observability:
+    driver: bridge
+
+volumes:
+  grafana_data:
+  loki_data:
+  tempo_data:
+  mimir_data:
