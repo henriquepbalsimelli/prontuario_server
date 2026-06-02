@@ -1,0 +1,28 @@
+services:
+  alloy:
+    image: grafana/alloy:latest
+    container_name: prontuario-alloy
+    restart: unless-stopped
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - --storage.path=/var/lib/alloy/data
+    env_file:
+      - .env.alloy
+    ports:
+      - "127.0.0.1:${ALLOY_HOST_OTLP_GRPC_PORT:-14317}:14317"
+      - "127.0.0.1:${ALLOY_HOST_OTLP_HTTP_PORT:-14318}:14318"
+      - "127.0.0.1:12345:12345"
+    volumes:
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy_data:/var/lib/alloy/data
+      - ${ALLOY_APP_LOG_PATH_HOST:-./logs}:/var/log/prontuario-api:ro
+    networks:
+      - observability
+
+volumes:
+  alloy_data:
+
+networks:
+  observability:
+    external: true
