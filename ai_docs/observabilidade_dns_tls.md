@@ -9,9 +9,11 @@ Definir padrão único de DNS e TLS para acesso ao Grafana e ingestão de teleme
 - Grafana (UI): `grafana.<seu-dominio>`
 - OTLP gRPC (collector ingress): `otlp-grpc.<seu-dominio>`
 - OTLP HTTP (collector ingress): `otlp-http.<seu-dominio>`
+- Mimir OTLP HTTP (metrics ingress): `mimir-otlp.<seu-dominio>`
+- Loki write API (logs ingress): `loki-write.<seu-dominio>`
 
 Observação:
-- Loki/Tempo/Mimir não devem ser expostos diretamente em domínio público.
+- Loki/Tempo/Mimir não devem ter portas internas expostas publicamente.
 - O acesso externo passa pelo reverse proxy no `observability-server`.
 
 ## TLS (obrigatório)
@@ -28,10 +30,12 @@ Observação:
 - Privado/restrito (ingestão de telemetria):
 - `otlp-grpc.<seu-dominio>`
 - `otlp-http.<seu-dominio>`
+- `mimir-otlp.<seu-dominio>`
+- `loki-write.<seu-dominio>`
 
 ## Regras de segurança associadas
-- Exigir autenticação na ingestão OTLP (header/token ou mTLS, conforme política).
-- Permitir ingestão OTLP apenas da origem do `api-server`.
+- Exigir autenticação na ingestão de telemetria (header/token ou mTLS, conforme política).
+- Permitir ingestão de traces, métricas e logs apenas da origem do `api-server`.
 - Aplicar rate limiting no reverse proxy para endpoints de ingestão.
 - Habilitar logs de acesso no proxy para auditoria.
 
@@ -43,5 +47,7 @@ Observação:
 - DNS de Grafana definido.
 - DNS de OTLP gRPC definido.
 - DNS de OTLP HTTP definido.
+- DNS de Mimir OTLP HTTP definido.
+- DNS de Loki write API definido.
 - Certificados TLS emitidos e válidos para todos os hosts.
 - HTTP bloqueado/redirecionado para HTTPS.

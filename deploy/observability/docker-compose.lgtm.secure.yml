@@ -64,6 +64,8 @@ services:
       GRAFANA_DOMAIN: ${GRAFANA_DOMAIN}
       OTLP_HTTP_DOMAIN: ${OTLP_HTTP_DOMAIN}
       OTLP_GRPC_DOMAIN: ${OTLP_GRPC_DOMAIN}
+      MIMIR_OTLP_HTTP_DOMAIN: ${MIMIR_OTLP_HTTP_DOMAIN}
+      LOKI_WRITE_DOMAIN: ${LOKI_WRITE_DOMAIN}
       API_SERVER_CIDR: ${API_SERVER_CIDR}
     volumes:
       - ./proxy/templates:/etc/nginx/templates:ro
@@ -71,13 +73,15 @@ services:
       - ./proxy/auth:/etc/nginx/auth:ro
     depends_on:
       - grafana
+      - loki
+      - mimir
       - tempo
     networks:
       - observability
 
 networks:
   observability:
-    driver: bridge
+    external: true
 
 volumes:
   grafana_data:

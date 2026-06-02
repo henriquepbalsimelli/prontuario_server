@@ -61,12 +61,12 @@ services:
     networks:
       - observability
 
-networks:
-  observability:
-    driver: bridge
-
 volumes:
   grafana_data:
   loki_data:
   tempo_data:
   mimir_data:
+
+networks:
+  observability:
+    external: true

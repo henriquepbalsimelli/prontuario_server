@@ -1,3 +1,5 @@
+from typing import Any
+from uuid import UUID
 from dataclasses import dataclass
 from uuid import uuid4
 
@@ -12,11 +14,20 @@ class DoctorEmailAlreadyExistsError(Exception):
     pass
 
 
+class DoctorNotFoundError(Exception):
+    pass
+
+
 @dataclass(slots=True)
 class CreateDoctorInput:
     name: str
     email: str
     password: str
+
+
+@dataclass(slots=True)
+class UpdateDoctorPreferencesInput:
+    preferences: dict[str, Any]
 
 
 class DoctorService:
@@ -52,3 +63,32 @@ class DoctorService:
                 after_state=to_audit_dict(created),
             )
         return created
+
+    async def update_preferences(
+        self,
+        doctor_id: UUID,
+        payload: UpdateDoctorPreferencesInput,
+    ) -> Doctor:
+        existing = await self.repository.get_by_id(doctor_id=doctor_id)
+        if existing is None:
+            raise DoctorNotFoundError("Doctor not found")
+
+        updated = await self.repository.update_preferences(
+            doctor_id=doctor_id,
+            preferences=payload.preferences,
+        )
+        if updated is None:
+            raise DoctorNotFoundError("Doctor not found")
+
+        if self.audit_event_service is not None:
+            await self.audit_event_service.record_write(
+                doctor_id=doctor_id,
+                entity_type="doctor",
+                entity_id=doctor_id,
+                action="update_preferences",
+                event_type="DoctorPreferencesUpdated",
+                before_state={"preferences": to_audit_dict(existing.preferences)},
+                after_state={"preferences": to_audit_dict(updated.preferences)},
+            )
+
+        return updated

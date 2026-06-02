@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any
 from uuid import UUID
 
 
@@ -9,4 +10,5 @@ class Doctor:
     name: str
     email: str
     password_hash: str
+    preferences: dict[str, Any] = field(default_factory=dict)
     created_at: datetime | None = None

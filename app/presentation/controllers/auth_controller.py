@@ -21,6 +21,8 @@ async def login(
         ) from exc
 
     return AuthTokenResponse(
+        doctor_id=output.doctor_id,
+        preferences=output.preferences,
         access_token=output.access_token,
         token_type=output.token_type,
         expires_in=output.expires_in,

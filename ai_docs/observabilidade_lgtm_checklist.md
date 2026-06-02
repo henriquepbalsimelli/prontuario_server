@@ -33,33 +33,33 @@
 - [x] Configurar RBAC no Grafana
 
 ## Fase 3 - Collector/Agent no servidor API
-- [ ] Instalar Grafana Alloy no servidor da API
-- [ ] Configurar receiver OTLP (gRPC/HTTP) no Alloy
-- [ ] Configurar pipeline de traces -> Tempo
-- [ ] Configurar pipeline de métricas -> Mimir
-- [ ] Configurar pipeline de logs -> Loki
-- [ ] Habilitar `batch`, `memory_limiter`, retry e queue nos exporters
-- [ ] Validar envio com teste de conectividade ponta a ponta
+- [x] Instalar Grafana Alloy no servidor da API
+- [x] Configurar receiver OTLP (gRPC/HTTP) no Alloy
+- [x] Configurar pipeline de traces -> Tempo
+- [x] Configurar pipeline de métricas -> Mimir
+- [x] Configurar pipeline de logs -> Loki
+- [x] Habilitar `batch`, `memory_limiter`, retry e queue nos exporters
+- [x] Validar envio com teste de conectividade ponta a ponta
 
 ## Fase 4 - Instrumentação da API FastAPI
-- [ ] Adicionar dependências OpenTelemetry no projeto
-- [ ] Instrumentar FastAPI (request lifecycle)
-- [ ] Instrumentar cliente HTTP (saídas para serviços externos)
-- [ ] Instrumentar SQLAlchemy (queries e tempo de banco)
-- [ ] Configurar `service.name`, `service.version`, `deployment.environment`
-- [ ] Excluir endpoints de ruído (`/health`, `/docs`, `/openapi.json`)
-- [ ] Propagar `trace_id`/`span_id` nos logs estruturados
-- [ ] Manter correlação com `request_id` já existente
+- [x] Adicionar dependências OpenTelemetry no projeto
+- [x] Instrumentar FastAPI (request lifecycle)
+- [x] Instrumentar cliente HTTP (saídas para serviços externos)
+- [x] Instrumentar SQLAlchemy (queries e tempo de banco)
+- [x] Configurar `service.name`, `service.version`, `deployment.environment`
+- [x] Excluir endpoints de ruído (`/health`, `/docs`, `/openapi.json`)
+- [x] Propagar `trace_id`/`span_id` nos logs estruturados
+- [x] Manter correlação com `request_id` já existente
 
 ## Fase 5 - Dashboards e Alertas
-- [ ] Criar dashboard RED (Rate, Errors, Duration)
-- [ ] Criar dashboard de infraestrutura da API (CPU, memória, restart)
-- [ ] Criar dashboard de logs por status, rota e `request_id`
-- [ ] Criar visão de traces com busca por `trace_id`
-- [ ] Criar alertas de erro 5xx acima do limiar
-- [ ] Criar alertas de latência p95/p99 acima do limiar
-- [ ] Criar alertas de indisponibilidade de ingestão no Alloy
-- [ ] Criar alertas de uso de disco alto no servidor LGTM
+- [x] Criar dashboard RED (Rate, Errors, Duration)
+- [x] Criar dashboard de infraestrutura da API (CPU, memória, restart)
+- [x] Criar dashboard de logs por status, rota e `request_id`
+- [x] Criar visão de traces com busca por `trace_id`
+- [x] Criar alertas de erro 5xx acima do limiar
+- [x] Criar alertas de latência p95/p99 acima do limiar
+- [x] Criar alertas de indisponibilidade de ingestão no Alloy
+- [x] Criar alertas de uso de disco alto no servidor LGTM
 
 ## Fase 6 - Segurança de dados e compliance
 - [ ] Revisar masking de dados sensíveis nos logs enviados ao Loki

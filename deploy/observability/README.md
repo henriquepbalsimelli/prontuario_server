@@ -2,6 +2,12 @@
 
 Este diretório contém a base da Fase 1 para provisionar Grafana, Loki, Tempo e Mimir com persistência local.
 
+## Escopo deste diretório
+- Este compose (`docker-compose.lgtm.yml` ou `docker-compose.lgtm.secure.yml`) deve rodar no servidor de observabilidade.
+- O compose de Alloy da API fica em `deploy/api_observability` e deve apontar para este servidor.
+- Ter dois composes é intencional para suportar deploy em dois servidores (API e observabilidade separados).
+- No ambiente local deste repositório, as duas stacks compartilham a rede Docker externa `observability`; isso permite que o Alloy alcance `prontuario-tempo`, `prontuario-mimir` e `prontuario-loki` diretamente por nome de serviço.
+
 ## Subir stack
 ```bash
 cd deploy/observability
@@ -31,6 +37,16 @@ docker compose -f docker-compose.lgtm.yml ps
   - Loki (`http://loki:3100`)
   - Tempo (`http://tempo:3200`)
   - Mimir (`http://mimir:9009/prometheus`)
+- Dashboards provisionados automaticamente:
+  - `Prontuario API - RED`
+  - `Prontuario API - Infra`
+  - `Prontuario API - Logs`
+  - `Prontuario API - Traces`
+- Alertas provisionados automaticamente:
+  - `API 5xx Rate High`
+  - `API Latency p95 High`
+  - `Alloy Ingestion Unavailable`
+  - `LGTM Disk Usage High`
 
 ## Retenção aplicada (baseline)
 - Loki: `30d` (em `loki-config.yml`)
@@ -58,7 +74,7 @@ Passos:
 cd deploy/observability
 cp .env.secure.example .env
 
-# gerar basic auth para Grafana e OTLP
+# gerar basic auth para Grafana e ingestao de telemetria
 ./scripts/generate_basic_auth.sh grafana_user 'senha-forte-grafana' otlp_user 'senha-forte-otlp'
 
 # adicionar certificados TLS
@@ -71,5 +87,9 @@ docker compose -f docker-compose.lgtm.secure.yml up -d
 Comportamento do proxy:
 - Redireciona `HTTP -> HTTPS`.
 - Exige Basic Auth para `grafana.<dominio>`.
-- Exige Basic Auth + allowlist de IP/CIDR para `otlp-http.<dominio>` e `otlp-grpc.<dominio>`.
+- Exige Basic Auth + allowlist de IP/CIDR para:
+- `otlp-http.<dominio>` -> Tempo OTLP HTTP
+- `otlp-grpc.<dominio>` -> Tempo OTLP gRPC
+- `mimir-otlp.<dominio>` -> Mimir OTLP HTTP
+- `loki-write.<dominio>` -> Loki push API
 - Aplica rate limiting nos endpoints públicos/ingestão.

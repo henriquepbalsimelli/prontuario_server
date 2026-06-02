@@ -23,6 +23,41 @@ docker compose ps
 docker compose down
 ```
 
+## Ambiente local unificado com observabilidade
+Desenvolvimento diario sem proxy TLS:
+```bash
+cp .env.example .env
+docker compose -f docker-compose.local.yml up -d --build
+```
+
+Servicos principais:
+- API: `http://localhost:8000`
+- Grafana: `http://localhost:3000`
+- Alloy OTLP gRPC: `localhost:14317`
+- Alloy OTLP HTTP: `localhost:14318`
+
+Validacao local do contrato seguro:
+```bash
+cp .env.example .env
+./deploy/observability/scripts/generate_local_proxy_tls.sh
+cd deploy/observability
+./scripts/generate_basic_auth.sh grafana_user 'senha-grafana' otlp_user 'CHANGE_ME'
+cd ../..
+docker compose -f docker-compose.local.yml -f docker-compose.local.secure.yml up -d --build
+```
+
+Hosts locais usados no modo seguro:
+- `grafana.localtest.me`
+- `otlp-http.localtest.me`
+- `otlp-grpc.localtest.me`
+- `mimir-otlp.localtest.me`
+- `loki-write.localtest.me`
+
+Observacoes:
+- `localtest.me` resolve para `127.0.0.1`.
+- O override seguro mantem a API falando com o Alloy local; apenas o Alloy passa a enviar telemetria para o proxy TLS.
+- Em ambiente local seguro, o Alloy usa `ALLOY_EXPORT_TLS_INSECURE_SKIP_VERIFY=true` para aceitar o certificado self-signed do proxy.
+
 ## Healthcheck
 - `GET /health`
 
@@ -202,6 +237,16 @@ python scripts/process_domain_events.py --limit 100
 ## Observabilidade (LGTM)
 - Stack base da Fase 1 em `deploy/observability`.
 - Guia rápido: `deploy/observability/README.md`.
+- Collector da API (Fase 3) em `deploy/api_observability`.
+- Instrumentação da API (Fase 4) habilitada por variáveis OTel no `.env`.
+
+Variáveis principais:
+- `OTEL_ENABLED=true`
+- `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:14317`
+- `OTEL_EXCLUDED_URLS=/health,/docs,/openapi.json,/redoc`
+- `LOG_TRACE_CORRELATION_ENABLED=true`
+
+Com isso, logs estruturados passam a incluir `trace_id` e `span_id` (além do `request_id`).
 
 ## Autenticacao (para endpoints protegidos)
 - Use `Authorization: Bearer <token>`

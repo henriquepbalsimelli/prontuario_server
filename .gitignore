@@ -15,4 +15,56 @@ deploy/nginx/certs/*.crt
 deploy/nginx/certs/*.key
 .idea/
 .DS_Store
+
+# Local environment and secret material
 .env
+.env.*
+!.env.example
+!.env.*.example
+.secrets.json
+.secrets.*.json
+!.secrets.example.json
+!.secrets.*.example.json
+secrets/
+.secrets/
+*.secret
+*.secrets
+*.token
+*.credentials
+*.credentials.json
+
+# Certificates, private keys, auth files and TLS material
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.keystore
+deploy/**/certs/
+deploy/**/auth/
+deploy/nginx/certs/*.crt
+deploy/nginx/certs/*.key
+
+# Local databases, dumps, runtime files and logs
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.dump
+*.backup
+*.bak
+*.log
+logs/
+tmp/
+temp/
+.mypy_cache/
+.hypothesis/
+
+# Docker/local override files that can contain secrets
+docker-compose.override.yml
+docker-compose.*.local.yml
+docker-compose.local.yml
+docker-compose.local.secure.yml
+*.htpasswd

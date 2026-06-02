@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -17,8 +19,17 @@ class SQLAlchemyDoctorRepository(DoctorRepository):
             name=model.name,
             email=model.email,
             password_hash=model.password_hash,
+            preferences=model.preferences or {},
             created_at=model.created_at,
         )
+
+    async def get_by_id(self, doctor_id: UUID) -> Doctor | None:
+        stmt = select(DoctorModel).where(DoctorModel.id == doctor_id)
+        result = await self.session.execute(stmt)
+        row = result.scalar_one_or_none()
+        if row is None:
+            return None
+        return self._to_domain(row)
 
     async def get_by_email(self, email: str) -> Doctor | None:
         stmt = select(DoctorModel).where(DoctorModel.email == email)
@@ -34,8 +45,21 @@ class SQLAlchemyDoctorRepository(DoctorRepository):
             name=doctor.name,
             email=doctor.email,
             password_hash=doctor.password_hash,
+            preferences=doctor.preferences,
         )
         self.session.add(row)
+        await self.session.commit()
+        await self.session.refresh(row)
+        return self._to_domain(row)
+
+    async def update_preferences(self, doctor_id: UUID, preferences: dict) -> Doctor | None:
+        stmt = select(DoctorModel).where(DoctorModel.id == doctor_id)
+        result = await self.session.execute(stmt)
+        row = result.scalar_one_or_none()
+        if row is None:
+            return None
+
+        row.preferences = preferences
         await self.session.commit()
         await self.session.refresh(row)
         return self._to_domain(row)

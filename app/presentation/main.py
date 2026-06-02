@@ -5,6 +5,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 from app.application.container import Container
 from app.infrastructure.logging import configure_logging
+from app.infrastructure.observability import configure_observability
 from app.infrastructure.settings import get_settings
 from app.presentation.controllers.consultation_controller import router as consultation_router
 from app.presentation.controllers.auth_controller import router as auth_router
@@ -27,7 +28,12 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     settings = get_settings()
-    configure_logging(level=settings.log_level, json_logs=settings.log_json)
+    configure_logging(
+        level=settings.log_level,
+        json_logs=settings.log_json,
+        trace_correlation_enabled=settings.log_trace_correlation_enabled,
+        log_file_path=settings.log_file_path,
+    )
 
     app = FastAPI(
         title=settings.app_name,
@@ -61,6 +67,11 @@ def create_app() -> FastAPI:
     app.include_router(medication_router, prefix=settings.api_prefix)
     app.include_router(image_router, prefix=settings.api_prefix)
     app.include_router(lesion_router, prefix=settings.api_prefix)
+    configure_observability(
+        app=app,
+        settings=settings,
+        engine=app.state.container.engine,
+    )
 
     return app
 

@@ -20,6 +20,8 @@ Data de confirmação: 2026-03-04
 - logs para Loki (`observability-server`)
 4. O Grafana consulta Loki/Tempo/Mimir para dashboards e troubleshooting.
 
+No deploy seguro, toda a ingestão entre `api-server` e `observability-server` ocorre via reverse proxy TLS em `443`, com domínios dedicados por tipo de telemetria. As portas internas `3100`, `4317`, `4318` e `9009` permanecem privadas.
+
 ## Fronteiras de responsabilidade
 - `api-server`
 - aplicação FastAPI
@@ -36,8 +38,6 @@ Data de confirmação: 2026-03-04
 - Endpoints públicos de observabilidade devem estar protegidos com TLS e autenticação.
 
 ## Próximos itens do checklist
-- Instalar Grafana Alloy no servidor da API.
-- Configurar receiver OTLP (gRPC/HTTP) no Alloy.
-- Configurar pipeline de traces -> Tempo.
-- Configurar pipeline de métricas -> Mimir.
-- Configurar pipeline de logs -> Loki.
+- Revisar masking de dados sensíveis nos logs enviados ao Loki.
+- Garantir que dados HIGHLY_SENSITIVE não sejam atributos de span.
+- Revisar labels de métricas para evitar dados sensíveis.

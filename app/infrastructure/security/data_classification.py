@@ -13,6 +13,7 @@ FIELD_SENSITIVITY: dict[str, DataSensitivity] = {
     "doctor.name": DataSensitivity.SENSITIVE,
     "doctor.email": DataSensitivity.SENSITIVE,
     "doctor.password_hash": DataSensitivity.HIGHLY_SENSITIVE,
+    "doctor.preferences": DataSensitivity.INTERNAL,
     "doctor.created_at": DataSensitivity.INTERNAL,
     "patient.id": DataSensitivity.INTERNAL,
     "patient.doctor_id": DataSensitivity.INTERNAL,

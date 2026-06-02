@@ -5,7 +5,11 @@ Data: 2026-03-04
 ## Entregas
 - Reverse proxy Nginx com TLS e redirecionamento HTTP -> HTTPS.
 - Proteção do Grafana com Basic Auth no proxy.
-- Proteção de ingestão OTLP (HTTP/gRPC) com Basic Auth + allowlist por CIDR.
+- Proteção de ingestão de telemetria com Basic Auth + allowlist por CIDR:
+- Tempo OTLP HTTP
+- Tempo OTLP gRPC
+- Mimir OTLP HTTP
+- Loki push API
 - Rate limiting configurado para endpoints de Grafana e OTLP.
 - Baseline de RBAC no Grafana (roles e hardening em configuração).
 

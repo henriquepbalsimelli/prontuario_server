@@ -43,7 +43,9 @@ class Settings(BaseSettings):
     gzip_minimum_size: int = 1000
     log_level: str = "INFO"
     log_json: bool = False
+    log_file_path: str = Field(default="", validation_alias="LOG_FILE_PATH")
     log_request_bodies: bool = True
+    log_trace_correlation_enabled: bool = True
     enforce_https: bool = False
     hsts_enabled: bool = False
     hsts_max_age_seconds: int = 31536000
@@ -94,6 +96,32 @@ class Settings(BaseSettings):
     require_encryption_key_in_deploy: bool = Field(
         default=True,
         validation_alias="REQUIRE_ENCRYPTION_KEY_IN_DEPLOY",
+    )
+    otel_enabled: bool = Field(default=True, validation_alias="OTEL_ENABLED")
+    otel_service_name: str = Field(default="prontuario-api", validation_alias="OTEL_SERVICE_NAME")
+    otel_exporter_otlp_endpoint: str = Field(
+        default="http://localhost:14317",
+        validation_alias="OTEL_EXPORTER_OTLP_ENDPOINT",
+    )
+    otel_exporter_otlp_insecure: bool = Field(
+        default=True,
+        validation_alias="OTEL_EXPORTER_OTLP_INSECURE",
+    )
+    otel_exporter_otlp_headers: str = Field(
+        default="",
+        validation_alias="OTEL_EXPORTER_OTLP_HEADERS",
+    )
+    otel_exporter_otlp_timeout_seconds: int = Field(
+        default=10,
+        validation_alias="OTEL_EXPORTER_OTLP_TIMEOUT_SECONDS",
+    )
+    otel_metric_export_interval_ms: int = Field(
+        default=10000,
+        validation_alias="OTEL_METRIC_EXPORT_INTERVAL_MS",
+    )
+    otel_excluded_urls: str = Field(
+        default="/health,/docs,/openapi.json,/redoc",
+        validation_alias="OTEL_EXCLUDED_URLS",
     )
 
     @property
@@ -159,6 +187,10 @@ def _validate_deploy_secret_policy(settings: Settings) -> None:
         raise ValueError("JWT_SECRET_KEY must be at least 32 bytes for HS256")
     if settings.jwt_access_token_exp_minutes <= 0:
         raise ValueError("JWT_ACCESS_TOKEN_EXP_MINUTES must be greater than zero")
+    if settings.otel_exporter_otlp_timeout_seconds <= 0:
+        raise ValueError("OTEL_EXPORTER_OTLP_TIMEOUT_SECONDS must be greater than zero")
+    if settings.otel_metric_export_interval_ms <= 0:
+        raise ValueError("OTEL_METRIC_EXPORT_INTERVAL_MS must be greater than zero")
 
     is_deploy_env = settings.environment.lower() in {"staging", "production"}
     using_env_provider = settings.secret_provider.strip().lower() == "env"

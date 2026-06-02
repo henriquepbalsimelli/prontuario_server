@@ -18,8 +18,10 @@ Definir tráfego permitido entre os dois servidores do ambiente de produção:
 | Origem | Destino | Porta | Protocolo | TLS | Finalidade | Exposição |
 |---|---|---:|---|---|---|---|
 | Internet (IPs autorizados) | observability-server | 443 | TCP/HTTPS | Sim | Acesso ao Grafana (`grafana.<dominio>`) | Pública com controle |
-| api-server | observability-server | 443 | TCP/HTTPS | Sim | Ingestão OTLP HTTP (`otlp-http.<dominio>`) | Privada/restrita |
-| api-server | observability-server | 443 | TCP/HTTPS (h2) | Sim | Ingestão OTLP gRPC (`otlp-grpc.<dominio>`) | Privada/restrita |
+| api-server | observability-server | 443 | TCP/HTTPS | Sim | Ingestão de traces no Tempo (`otlp-http.<dominio>`) | Privada/restrita |
+| api-server | observability-server | 443 | TCP/HTTPS (h2) | Sim | Ingestão de traces no Tempo (`otlp-grpc.<dominio>`) | Privada/restrita |
+| api-server | observability-server | 443 | TCP/HTTPS | Sim | Ingestão de métricas no Mimir (`mimir-otlp.<dominio>`) | Privada/restrita |
+| api-server | observability-server | 443 | TCP/HTTPS | Sim | Ingestão de logs no Loki (`loki-write.<dominio>`) | Privada/restrita |
 | observability-server | Internet (ACME) | 80/443 | TCP | Sim (443) | Emissão/renovação de certificado | Saída |
 | api-server | Internet (opcional) | 53/123/443 | UDP/TCP | N/A | DNS/NTP/updates | Saída controlada |
 
@@ -37,7 +39,7 @@ Observação:
 ## Regras mínimas de firewall
 - `observability-server` inbound:
 - permitir `443/tcp` de IPs administrativos para Grafana
-- permitir `443/tcp` de `api-server` para ingestão OTLP
+- permitir `443/tcp` de `api-server` para ingestão de traces, métricas e logs
 - negar `0.0.0.0/0` para `3000,3100,4317,4318,9009`
 - `api-server` outbound:
 - permitir `443/tcp` para `observability-server`
@@ -53,4 +55,4 @@ Observação:
 - Matriz de portas aprovada.
 - Regras de firewall aplicadas em ambos os servidores.
 - Sem exposição pública das portas internas do LGTM.
-- API consegue enviar telemetria via `443` com TLS para o servidor LGTM.
+- API consegue enviar traces, métricas e logs via `443` com TLS para o servidor LGTM.

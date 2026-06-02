@@ -1,5 +1,7 @@
+from typing import Any
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from uuid import UUID
 
 import jwt
 
@@ -19,6 +21,8 @@ class LoginInput:
 
 @dataclass(slots=True)
 class LoginOutput:
+    doctor_id: UUID
+    preferences: dict[str, Any]
     access_token: str
     token_type: str
     expires_in: int
@@ -61,6 +65,8 @@ class AuthService:
         )
 
         return LoginOutput(
+            doctor_id=doctor.id,
+            preferences=doctor.preferences,
             access_token=token,
             token_type="bearer",
             expires_in=expires_in,
