@@ -25,15 +25,24 @@ class SQLAlchemyPatientRepository(PatientRepository):
             created_at=model.created_at,
         )
 
-    async def list_by_doctor(self, doctor_id: UUID, page: int, page_size: int) -> list[Patient]:
+    async def list_by_doctor(
+        self,
+        doctor_id: UUID,
+        page: int,
+        page_size: int,
+        name: str | None = None,
+    ) -> list[Patient]:
         offset = (page - 1) * page_size
-        stmt = (
-            select(PatientModel)
-            .where(PatientModel.doctor_id == doctor_id)
-            .order_by(PatientModel.created_at.desc())
-            .offset(offset)
-            .limit(page_size)
-        )
+        stmt = select(PatientModel).where(PatientModel.doctor_id == doctor_id)
+
+        if name is not None:
+            stmt = stmt.where(
+                PatientModel.name.ilike(f"%{name}%")
+            ).order_by(PatientModel.name.asc())
+        else:
+            stmt = stmt.order_by(PatientModel.created_at.desc())
+
+        stmt = stmt.offset(offset).limit(page_size)
         result = await self.session.execute(stmt)
         rows = result.scalars().all()
         return [self._to_domain(row) for row in rows]

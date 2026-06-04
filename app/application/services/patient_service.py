@@ -39,8 +39,23 @@ class PatientService:
         self.repository = repository
         self.audit_event_service = audit_event_service
 
-    async def list_patients(self, doctor_id: UUID, page: int, page_size: int) -> list[Patient]:
-        return await self.repository.list_by_doctor(doctor_id=doctor_id, page=page, page_size=page_size)
+    async def list_patients(
+        self,
+        doctor_id: UUID,
+        page: int,
+        page_size: int,
+        name: str | None = None,
+    ) -> list[Patient]:
+        normalized_name = name.strip() if name is not None else None
+        if normalized_name == "":
+            normalized_name = None
+
+        return await self.repository.list_by_doctor(
+            doctor_id=doctor_id,
+            page=page,
+            page_size=page_size,
+            name=normalized_name,
+        )
 
     async def get_patient(self, doctor_id: UUID, patient_id: UUID) -> Patient:
         patient = await self.repository.get_by_id(doctor_id=doctor_id, patient_id=patient_id)

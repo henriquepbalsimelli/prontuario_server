@@ -6,7 +6,13 @@ from app.domain.models.patient import Patient
 
 class PatientRepository(ABC):
     @abstractmethod
-    async def list_by_doctor(self, doctor_id: UUID, page: int, page_size: int) -> list[Patient]:
+    async def list_by_doctor(
+        self,
+        doctor_id: UUID,
+        page: int,
+        page_size: int,
+        name: str | None = None,
+    ) -> list[Patient]:
         raise NotImplementedError
 
     @abstractmethod

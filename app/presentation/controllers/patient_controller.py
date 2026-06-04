@@ -23,6 +23,7 @@ router = APIRouter(prefix="/patients", tags=["patients"])
 async def list_patients(
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
+    name: str | None = Query(default=None, min_length=1),
     doctor: AuthenticatedDoctor = Depends(get_authenticated_doctor),
     service: PatientService = Depends(get_patient_service),
 ) -> list[PatientResponse]:
@@ -30,6 +31,7 @@ async def list_patients(
         doctor_id=doctor.doctor_id,
         page=page,
         page_size=page_size,
+        name=name,
     )
     return [PatientResponse.model_validate(patient) for patient in patients]
 
