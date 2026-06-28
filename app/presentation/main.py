@@ -7,15 +7,28 @@ from app.application.container import Container
 from app.infrastructure.logging import configure_logging
 from app.infrastructure.observability import configure_observability
 from app.infrastructure.settings import get_settings
+from app.presentation.controllers.consultation_controller import (
+    detail_router as consultation_detail_router,
+)
 from app.presentation.controllers.consultation_controller import router as consultation_router
+from app.presentation.controllers.continuous_medication_controller import (
+    router as continuous_medication_router,
+)
 from app.presentation.controllers.auth_controller import router as auth_router
 from app.presentation.controllers.disease_controller import router as disease_router
+from app.presentation.controllers.doctor_template_controller import router as doctor_template_router
 from app.presentation.controllers.doctor_controller import router as doctor_router
+from app.presentation.controllers.evolution_controller import router as evolution_router
+from app.presentation.controllers.exam_controller import router as exam_router
 from app.presentation.controllers.health_controller import router as health_router
 from app.presentation.controllers.image_controller import router as image_router
 from app.presentation.controllers.lesion_controller import router as lesion_router
 from app.presentation.controllers.medication_controller import router as medication_router
+from app.presentation.controllers.medical_history_controller import router as medical_history_router
 from app.presentation.controllers.patient_controller import router as patient_router
+from app.presentation.controllers.procedure_controller import router as procedure_router
+from app.presentation.controllers.text_document_controller import router as text_document_router
+from app.presentation.controllers.timeline_controller import router as timeline_router
 from app.presentation.middlewares.request_logging import RequestLoggingMiddleware
 from app.presentation.middlewares.security import HTTPSAndHSTSMiddleware
 
@@ -63,10 +76,19 @@ def create_app() -> FastAPI:
     app.include_router(doctor_router, prefix=settings.api_prefix)
     app.include_router(patient_router, prefix=settings.api_prefix)
     app.include_router(consultation_router, prefix=settings.api_prefix)
+    app.include_router(consultation_detail_router, prefix=settings.api_prefix)
+    app.include_router(continuous_medication_router, prefix=settings.api_prefix)
+    app.include_router(medical_history_router, prefix=settings.api_prefix)
     app.include_router(disease_router, prefix=settings.api_prefix)
+    app.include_router(doctor_template_router, prefix=settings.api_prefix)
     app.include_router(medication_router, prefix=settings.api_prefix)
+    app.include_router(exam_router, prefix=settings.api_prefix)
     app.include_router(image_router, prefix=settings.api_prefix)
     app.include_router(lesion_router, prefix=settings.api_prefix)
+    app.include_router(procedure_router, prefix=settings.api_prefix)
+    app.include_router(text_document_router, prefix=settings.api_prefix)
+    app.include_router(timeline_router, prefix=settings.api_prefix)
+    app.include_router(evolution_router, prefix=settings.api_prefix)
     configure_observability(
         app=app,
         settings=settings,

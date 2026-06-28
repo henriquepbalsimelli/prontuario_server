@@ -64,7 +64,7 @@ class SQLAlchemyImageRepository(ImageRepository):
             upload_status=image.upload_status,
         )
         self.session.add(row)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)
 
@@ -100,6 +100,6 @@ class SQLAlchemyImageRepository(ImageRepository):
         row.file_size_bytes = file_size_bytes
         row.etag = etag
 
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)

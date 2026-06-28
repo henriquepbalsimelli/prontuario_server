@@ -19,10 +19,28 @@ class FieldTarget:
 
 
 TARGET_FIELDS: tuple[FieldTarget, ...] = (
+    FieldTarget(table="patient", field="medical_history"),
     FieldTarget(table="patient", field="notes"),
+    FieldTarget(table="consultation", field="diagnosis"),
+    FieldTarget(table="consultation", field="notes"),
     FieldTarget(table="consultation", field="chief_complaint"),
     FieldTarget(table="consultation", field="physical_exam"),
     FieldTarget(table="consultation", field="conduct"),
+    FieldTarget(table="patient_continuous_medication", field="name"),
+    FieldTarget(table="patient_continuous_medication", field="dosage"),
+    FieldTarget(table="patient_continuous_medication", field="notes"),
+    FieldTarget(table="patient_medical_history", field="body"),
+    FieldTarget(table="exam", field="name"),
+    FieldTarget(table="exam", field="type"),
+    FieldTarget(table="exam", field="result_notes"),
+    FieldTarget(table="procedure", field="title"),
+    FieldTarget(table="procedure", field="description"),
+    FieldTarget(table="procedure", field="notes"),
+    FieldTarget(table="doctor_template", field="title"),
+    FieldTarget(table="doctor_template", field="body"),
+    FieldTarget(table="text_document", field="title"),
+    FieldTarget(table="text_document", field="body"),
+    FieldTarget(table="evolution", field="content"),
     FieldTarget(table="audit_log", field="before_state"),
     FieldTarget(table="audit_log", field="after_state"),
 )

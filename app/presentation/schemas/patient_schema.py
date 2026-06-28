@@ -9,6 +9,7 @@ class PatientCreateRequest(BaseModel):
     birth_date: date | None = None
     gender: str | None = Field(default=None, max_length=30)
     phone: str | None = Field(default=None, max_length=40)
+    medical_history: str | None = None
     notes: str | None = None
 
 
@@ -17,6 +18,7 @@ class PatientUpdateRequest(BaseModel):
     birth_date: date | None = None
     gender: str | None = Field(default=None, max_length=30)
     phone: str | None = Field(default=None, max_length=40)
+    medical_history: str | None = None
     notes: str | None = None
 
 
@@ -29,5 +31,6 @@ class PatientResponse(BaseModel):
     birth_date: date | None
     gender: str | None
     phone: str | None
+    medical_history: str | None
     notes: str | None
     created_at: datetime | None

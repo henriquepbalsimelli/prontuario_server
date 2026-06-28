@@ -21,6 +21,7 @@ class SQLAlchemyPatientRepository(PatientRepository):
             birth_date=model.birth_date,
             gender=model.gender,
             phone=model.phone,
+            medical_history=model.medical_history,
             notes=model.notes,
             created_at=model.created_at,
         )
@@ -66,10 +67,11 @@ class SQLAlchemyPatientRepository(PatientRepository):
             birth_date=patient.birth_date,
             gender=patient.gender,
             phone=patient.phone,
+            medical_history=patient.medical_history,
             notes=patient.notes,
         )
         self.session.add(row)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)
 
@@ -85,9 +87,10 @@ class SQLAlchemyPatientRepository(PatientRepository):
         row.birth_date = patient.birth_date
         row.gender = patient.gender
         row.phone = patient.phone
+        row.medical_history = patient.medical_history
         row.notes = patient.notes
 
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)
 
@@ -97,5 +100,5 @@ class SQLAlchemyPatientRepository(PatientRepository):
             PatientModel.doctor_id == doctor_id,
         )
         result = await self.session.execute(stmt)
-        await self.session.commit()
+        await self.session.flush()
         return result.rowcount > 0

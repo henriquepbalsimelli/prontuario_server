@@ -18,6 +18,7 @@ class CreatePatientInput:
     birth_date: date | None = None
     gender: str | None = None
     phone: str | None = None
+    medical_history: str | None = None
     notes: str | None = None
 
 
@@ -27,6 +28,7 @@ class UpdatePatientInput:
     birth_date: date | None = None
     gender: str | None = None
     phone: str | None = None
+    medical_history: str | None = None
     notes: str | None = None
 
 
@@ -71,6 +73,7 @@ class PatientService:
             birth_date=payload.birth_date,
             gender=payload.gender,
             phone=payload.phone,
+            medical_history=payload.medical_history,
             notes=payload.notes,
         )
         created = await self.repository.create(patient=patient)
@@ -103,6 +106,7 @@ class PatientService:
             birth_date=payload.birth_date,
             gender=payload.gender,
             phone=payload.phone,
+            medical_history=payload.medical_history,
             notes=payload.notes,
             created_at=existing.created_at,
         )

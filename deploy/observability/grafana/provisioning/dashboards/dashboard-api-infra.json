@@ -1,0 +1,156 @@
+{
+  "id": null,
+  "uid": "prontuario-api-infra",
+  "title": "Prontuario API - Infra",
+  "tags": ["prontuario", "api", "infra"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "textbox",
+        "label": "Service",
+        "current": {
+          "text": "prontuario-api",
+          "value": "prontuario-api"
+        },
+        "query": "prontuario-api"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "stat",
+      "title": "API Seen in Mimir",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "max(target_info{job=\"$service\"})",
+          "legendFormat": "seen"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Active Requests",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(http_server_active_requests{job=\"$service\"})",
+          "legendFormat": "active"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "DB Connections In Use",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(db_client_connections_usage{job=\"$service\"})",
+          "legendFormat": "connections"
+        }
+      ],
+      "options": {
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Request Size",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_request_size_sum{job=\"$service\"}[5m])) / clamp_min(sum(rate(http_server_request_size_count{job=\"$service\"}[5m])), 1)",
+          "legendFormat": "avg request size"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Average Response Size",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_response_size_sum{job=\"$service\"}[5m])) / clamp_min(sum(rate(http_server_response_size_count{job=\"$service\"}[5m])), 1)",
+          "legendFormat": "avg response size"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Requests by Status",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (http_status_code) (rate(http_server_duration_count{job=\"$service\"}[5m]))",
+          "legendFormat": "{{http_status_code}}"
+        }
+      ]
+    }
+  ]
+}

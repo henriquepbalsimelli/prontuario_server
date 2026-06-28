@@ -39,6 +39,6 @@ class SQLAlchemyDiseaseRepository(DiseaseRepository):
             description=disease.description,
         )
         self.session.add(row)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)

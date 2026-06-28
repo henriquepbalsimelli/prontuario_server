@@ -6,7 +6,12 @@ from uuid import UUID, uuid4
 
 from sqlalchemy.dialects import postgresql
 
-from app.application.services.patient_service import PatientService
+from app.application.services.patient_service import (
+    CreatePatientInput,
+    PatientService,
+    UpdatePatientInput,
+)
+from app.domain.models.patient import Patient
 from app.infrastructure.repositories.sqlalchemy_patient_repository import (
     SQLAlchemyPatientRepository,
 )
@@ -107,6 +112,47 @@ def test_repository_applies_case_insensitive_name_filter_and_name_order() -> Non
     assert params["param_1"] == 10
     assert params["param_2"] == 20
     assert any(value == "%Hen%" for value in params.values())
+
+
+def test_patient_service_preserves_medical_history_in_create_and_update() -> None:
+    doctor_id = uuid4()
+    patient_id = uuid4()
+    repository = AsyncMock()
+    repository.create.side_effect = lambda patient: patient
+    repository.get_by_id.return_value = Patient(
+        id=patient_id,
+        doctor_id=doctor_id,
+        name="Maria",
+        medical_history="asma",
+        notes="contexto",
+    )
+    repository.update.side_effect = lambda patient: patient
+    service = PatientService(repository=repository)
+
+    created = asyncio.run(
+        service.create_patient(
+            doctor_id=doctor_id,
+            payload=CreatePatientInput(
+                name="Maria",
+                medical_history="asma",
+                notes="contexto",
+            ),
+        )
+    )
+    updated = asyncio.run(
+        service.update_patient(
+            doctor_id=doctor_id,
+            patient_id=patient_id,
+            payload=UpdatePatientInput(
+                name="Maria",
+                medical_history="diabetes",
+                notes="contexto",
+            ),
+        )
+    )
+
+    assert created.medical_history == "asma"
+    assert updated.medical_history == "diabetes"
 
 
 def _compile_sql(stmt: object) -> str:

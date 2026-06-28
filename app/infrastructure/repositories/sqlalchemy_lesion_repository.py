@@ -70,7 +70,7 @@ class SQLAlchemyLesionRepository(LesionRepository):
             notes=lesion.notes,
         )
         self.session.add(row)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)
 
@@ -89,6 +89,6 @@ class SQLAlchemyLesionRepository(LesionRepository):
         row.status = lesion.status
         row.notes = lesion.notes
 
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)

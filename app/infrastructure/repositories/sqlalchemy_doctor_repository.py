@@ -48,7 +48,7 @@ class SQLAlchemyDoctorRepository(DoctorRepository):
             preferences=doctor.preferences,
         )
         self.session.add(row)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)
 
@@ -60,6 +60,6 @@ class SQLAlchemyDoctorRepository(DoctorRepository):
             return None
 
         row.preferences = preferences
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(row)
         return self._to_domain(row)

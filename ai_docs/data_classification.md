@@ -91,6 +91,11 @@ Controles obrigatórios:
 - `notes`: HIGHLY_SENSITIVE
 - coordenadas corporais: SENSITIVE
 
+### Evolution
+- `doctor_id`, `patient_id`, `consultation_id`, `created_at`, `updated_at`: INTERNAL
+- `origin_type`, `occurred_at`: SENSITIVE
+- `content`: HIGHLY_SENSITIVE
+
 ### AuditLog
 - `doctor_id`, `entity_type`, `entity_id`, `action`, `created_at`: INTERNAL
 - `before_state`, `after_state`: HIGHLY_SENSITIVE

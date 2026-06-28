@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from uuid import UUID
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, String, Text, text
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Index, String, Text, text
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -35,6 +35,7 @@ class Patient(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     birth_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     gender: Mapped[str | None] = mapped_column(String(30), nullable=True)
     phone: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    medical_history: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
     notes: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
 
 
@@ -54,9 +55,185 @@ class Consultation(UUIDPrimaryKeyMixin, TimestampMixin, Base):
         nullable=False,
     )
     consultation_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    scheduled_start_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    scheduled_end_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    status: Mapped[str | None] = mapped_column(String(30), nullable=True)
+    diagnosis: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+    notes: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
     chief_complaint: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
     physical_exam: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
     conduct: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+
+
+class PatientContinuousMedication(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "patient_continuous_medication"
+    __table_args__ = (
+        Index("ix_pcm_doctor_patient", "doctor_id", "patient_id"),
+        Index("ix_pcm_doctor_patient_status", "doctor_id", "patient_id", "status"),
+    )
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    name: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    dosage: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+    notes: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, server_default="active")
+
+
+class PatientMedicalHistory(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "patient_medical_history"
+    __table_args__ = (
+        Index("ix_pmh_doctor_patient", "doctor_id", "patient_id"),
+        Index("ix_pmh_doctor_patient_consultation", "doctor_id", "patient_id", "consultation_id"),
+    )
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    body: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+
+
+class Exam(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "exam"
+    __table_args__ = (
+        Index("ix_exam_doctor_patient", "doctor_id", "patient_id"),
+        Index("ix_exam_doctor_patient_date", "doctor_id", "patient_id", "exam_date"),
+    )
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    name: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    type: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+    exam_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    status: Mapped[str] = mapped_column(String(30), nullable=False, server_default="requested")
+    result_notes: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+
+
+class Procedure(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "procedure"
+    __table_args__ = (
+        Index("ix_procedure_doctor_patient", "doctor_id", "patient_id"),
+        Index("ix_procedure_doctor_patient_date", "doctor_id", "patient_id", "procedure_date"),
+    )
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    procedure_date: Mapped[date | None] = mapped_column(Date, nullable=True)
+    title: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    description: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+    notes: Mapped[str | None] = mapped_column(EncryptedString, nullable=True)
+
+
+class DoctorTemplate(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "doctor_template"
+    __table_args__ = (Index("ix_doctor_template_doctor_type", "doctor_id", "type"),)
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    title: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    type: Mapped[str] = mapped_column(String(30), nullable=False)
+    body: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+
+
+class TextDocument(UUIDPrimaryKeyMixin, TimestampMixin, Base):
+    __tablename__ = "text_document"
+    __table_args__ = (Index("ix_text_document_doctor_patient", "doctor_id", "patient_id"),)
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    template_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor_template.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    type: Mapped[str] = mapped_column(String(30), nullable=False)
+    title: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    body: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    version: Mapped[int] = mapped_column(nullable=False, server_default="1")
 
 
 class Disease(UUIDPrimaryKeyMixin, Base):
@@ -129,6 +306,43 @@ class Lesion(UUIDPrimaryKeyMixin, TimestampMixin, Base):
     coord_y: Mapped[float | None] = mapped_column(Float, nullable=True)
     status: Mapped[str | None] = mapped_column(String(100), nullable=True)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class Evolution(UUIDPrimaryKeyMixin, Base):
+    __tablename__ = "evolution"
+
+    doctor_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("doctor.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    patient_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("patient.id", ondelete="CASCADE"),
+        index=True,
+        nullable=False,
+    )
+    consultation_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True),
+        ForeignKey("consultation.id", ondelete="SET NULL"),
+        index=True,
+        nullable=True,
+    )
+    origin_type: Mapped[str] = mapped_column(String(64), nullable=False)
+    content: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    occurred_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+        nullable=False,
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=text("now()"),
+        server_onupdate=text("now()"),
+        nullable=False,
+    )
 
 
 class AuditLog(UUIDPrimaryKeyMixin, TimestampMixin, Base):

@@ -1,0 +1,70 @@
+{
+  "id": null,
+  "uid": "prontuario-api-logs",
+  "title": "Prontuario API - Logs",
+  "tags": ["prontuario", "api", "logs"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "15s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "textbox",
+        "label": "Service",
+        "current": {
+          "text": "prontuario-api",
+          "value": "prontuario-api"
+        },
+        "query": "prontuario-api"
+      },
+      {
+        "name": "request_id",
+        "type": "textbox",
+        "label": "Request ID",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "query": ""
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "logs",
+      "title": "Logs por serviço",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$service\"}"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "Logs filtrados por request_id",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 12 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$service\"} |= \"$request_id\""
+        }
+      ]
+    }
+  ]
+}

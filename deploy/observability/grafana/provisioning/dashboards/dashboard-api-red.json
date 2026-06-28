@@ -1,0 +1,109 @@
+{
+  "id": null,
+  "uid": "prontuario-api-red",
+  "title": "Prontuario API - RED",
+  "tags": ["prontuario", "api", "red"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "textbox",
+        "label": "Service",
+        "current": {
+          "text": "prontuario-api",
+          "value": "prontuario-api"
+        },
+        "query": "prontuario-api"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Rate (req/s)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_duration_count{job=\"$service\",http_target!~\"/health|/docs|/openapi.json|/redoc\"}[5m]))",
+          "legendFormat": "req/s"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Errors (5xx rate)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(http_server_duration_count{job=\"$service\",http_target!~\"/health|/docs|/openapi.json|/redoc\",http_status_code=~\"5..\"}[5m])) / clamp_min(sum(rate(http_server_duration_count{job=\"$service\",http_target!~\"/health|/docs|/openapi.json|/redoc\"}[5m])), 1)",
+          "legendFormat": "5xx rate"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Duration p95",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.95, sum(rate(http_server_duration_bucket{job=\"$service\",http_target!~\"/health|/docs|/openapi.json|/redoc\"}[5m])) by (le))",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Duration p99",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "mimir"
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "histogram_quantile(0.99, sum(rate(http_server_duration_bucket{job=\"$service\",http_target!~\"/health|/docs|/openapi.json|/redoc\"}[5m])) by (le))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        }
+      }
+    }
+  ]
+}

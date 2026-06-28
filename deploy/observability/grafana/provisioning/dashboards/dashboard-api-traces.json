@@ -1,0 +1,64 @@
+{
+  "id": null,
+  "uid": "prontuario-api-traces",
+  "title": "Prontuario API - Traces",
+  "tags": ["prontuario", "api", "traces"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "textbox",
+        "label": "Service",
+        "current": {
+          "text": "prontuario-api",
+          "value": "prontuario-api"
+        },
+        "query": "prontuario-api"
+      },
+      {
+        "name": "trace_id",
+        "type": "textbox",
+        "label": "Trace ID",
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "query": ""
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "text",
+      "title": "Busca de trace por trace_id",
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
+      "options": {
+        "mode": "markdown",
+        "content": "1. Abra o Explore com datasource **Tempo**.\\n2. Pesquise o `trace_id` informado (campo abaixo).\\n3. Use logs correlacionados no painel de Loki para o mesmo `trace_id`."
+      }
+    },
+    {
+      "type": "logs",
+      "title": "Logs correlacionados por trace_id",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "{service_name=\"$service\"} |= \"$trace_id\""
+        }
+      ]
+    }
+  ]
+}

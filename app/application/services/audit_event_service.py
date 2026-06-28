@@ -25,33 +25,34 @@ class AuditEventService:
         after_state: dict | None,
     ) -> None:
         ctx = get_request_context()
+        try:
+            audit = AuditLog(
+                doctor_id=doctor_id,
+                entity_type=entity_type,
+                entity_id=entity_id,
+                action=action,
+                before_state=before_state,
+                after_state=after_state,
+                ip_address=ctx.ip_address,
+                user_agent=ctx.user_agent,
+                request_id=ctx.request_id,
+            )
+            self.session.add(audit)
 
-        audit = AuditLog(
-            doctor_id=doctor_id,
-            entity_type=entity_type,
-            entity_id=entity_id,
-            action=action,
-            before_state=before_state,
-            after_state=after_state,
-            ip_address=ctx.ip_address,
-            user_agent=ctx.user_agent,
-            request_id=ctx.request_id,
-        )
-        self.session.add(audit)
+            event_payload = {
+                "entity_type": entity_type,
+                "entity_id": str(entity_id),
+                "action": action,
+                "doctor_id": str(doctor_id),
+                "request_id": ctx.request_id,
+            }
+            await self.event_bus.publish(
+                event_type=event_type,
+                entity_id=entity_id,
+                payload=event_payload,
+            )
 
-        event_payload = {
-            "entity_type": entity_type,
-            "entity_id": str(entity_id),
-            "action": action,
-            "doctor_id": str(doctor_id),
-            "request_id": ctx.request_id,
-            "before_state": before_state,
-            "after_state": after_state,
-        }
-        await self.event_bus.publish(
-            event_type=event_type,
-            entity_id=entity_id,
-            payload=event_payload,
-        )
-
-        await self.session.commit()
+            await self.session.commit()
+        except Exception:
+            await self.session.rollback()
+            raise

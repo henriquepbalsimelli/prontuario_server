@@ -11,5 +11,6 @@ class Patient:
     birth_date: date | None = None
     gender: str | None = None
     phone: str | None = None
+    medical_history: str | None = None
     notes: str | None = None
     created_at: datetime | None = None
